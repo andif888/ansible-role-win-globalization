@@ -1,0 +1,54 @@
+---
+# tasks file for ansible-role-win-globalization
+- name: globalization de-DE MUI
+  ansible.windows.win_regedit:
+    path: HKLM:\SYSTEM\CurrentControlSet\Control\MUI\Settings
+    name: PreferredUILanguages
+    data:
+      - '{{ win_globalization_system_mui }}'
+    type: multistring
+
+- name: globalization de-DE system
+  win_shell: |
+    Set-TimeZone -Id "{{ win_globalization_system_timezone }}"
+    Set-WinSystemLocale -SystemLocale {{ win_globalization_system_locale }}
+  register: globalization_system
+
+- debug:
+    var: globalization_system
+
+- name: globalization de-DE current user
+  win_shell: |
+    # Set-WinHomeLocation -GeoId 0x5e
+    Set-Culture -CultureInfo {{ win_globalization_user_locale }}
+    Set-WinUILanguageOverride -Language {{ win_globalization_user_locale }}
+    Set-WinDefaultInputMethodOverride -InputTip "{{ win_globalization_user_input }}"
+  register: globalization_current_user
+
+- debug:
+    var: globalization_current_user
+
+- name: globalization de-DE - current User reboot
+  win_reboot:
+    reboot_timeout: 1800
+    pre_reboot_delay: 10
+    post_reboot_delay: 20
+
+- name: globalization de-DE win_region
+  community.windows.win_region:
+    copy_settings: yes
+    format: '{{ win_globalization_user_locale }}'
+    location: '{{ win_globalization_geo_id }}'
+    unicode_language: '{{ win_globalization_user_locale }}'
+  register: globalization_win_region
+  when: win_globalization_copy_to_system_and_user
+
+- debug:
+    var: globalization_win_region
+  when: win_globalization_copy_to_system_and_user
+
+- win_reboot:
+    reboot_timeout: 1800
+    pre_reboot_delay: 10
+    post_reboot_delay: 20
+  when: win_globalization_copy_to_system_and_user
