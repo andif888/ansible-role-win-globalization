@@ -30,7 +30,7 @@
 
 - name: globalization de-DE - current User reboot
   win_reboot:
-    reboot_timeout: 1800
+    reboot_timeout: 3600
     pre_reboot_delay: 10
     post_reboot_delay: 20
 
@@ -48,7 +48,7 @@
   when: win_globalization_copy_to_system_and_user
 
 - win_reboot:
-    reboot_timeout: 1800
+    reboot_timeout: 3600
     pre_reboot_delay: 10
     post_reboot_delay: 20
   when: win_globalization_copy_to_system_and_user
