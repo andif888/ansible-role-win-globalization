@@ -22,6 +22,7 @@
   ansible.windows.win_shell: |
     # Set-WinHomeLocation -GeoId 0x5e
     Set-Culture -CultureInfo {{ win_globalization_user_locale }}
+    Set-WinUserLanguageList "{{ win_globalization_system_locale }}" -force
     Set-WinUILanguageOverride -Language {{ win_globalization_user_locale }}
     Set-WinDefaultInputMethodOverride -InputTip "{{ win_globalization_user_input }}"
   register: globalization_current_user
